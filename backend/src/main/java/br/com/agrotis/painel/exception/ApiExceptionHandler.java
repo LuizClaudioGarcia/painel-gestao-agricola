@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -64,7 +65,18 @@ public class ApiExceptionHandler {
         if (UUID.class.equals(ex.getRequiredType())) {
             return resposta(HttpStatus.BAD_REQUEST, "O " + ex.getName() + " precisa ser um UUID. Exemplo: " + EXEMPLO_UUID);
         }
+        if (OffsetDateTime.class.equals(ex.getRequiredType())) {
+            return resposta(HttpStatus.BAD_REQUEST, "O parâmetro " + ex.getName() + " precisa ser uma data com fuso. Exemplo: 2026-01-01T00:00:00Z");
+        }
         return resposta(HttpStatus.BAD_REQUEST, "O valor de " + ex.getName() + " é inválido.");
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErroResponse> parametroObrigatorio(MissingServletRequestParameterException ex) {
+        if ("quantidadeMinima".equals(ex.getParameterName())) {
+            return resposta(HttpStatus.BAD_REQUEST, "Informe quantidadeMinima, um inteiro a partir de 1.");
+        }
+        return resposta(HttpStatus.BAD_REQUEST, "Informe o parâmetro " + ex.getParameterName() + ".");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
