@@ -8,6 +8,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+import br.com.agrotis.painel.financeiro.CalculavelFinanceiro;
 import br.com.agrotis.painel.identificador.UuidV7;
 
 import java.util.UUID;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "entidade_agricola")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class EntidadeAgricola {
+public abstract class EntidadeAgricola implements CalculavelFinanceiro {
 
     @Id
     private UUID id;
@@ -38,6 +39,10 @@ public abstract class EntidadeAgricola {
             id = UuidV7.gerar();
         }
     }
+
+    public abstract Long getCodigo();
+
+    public abstract String getTipo();
 
     public UUID getId() {
         return id;

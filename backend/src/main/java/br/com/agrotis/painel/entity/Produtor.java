@@ -102,4 +102,14 @@ public class Produtor extends EntidadeAgricola {
     public void setComissaoProducao(BigDecimal comissaoProducao) {
         this.comissaoProducao = comissaoProducao;
     }
+
+    @Override
+    public BigDecimal calcularValorFinanceiro() {
+        return comissaoProducao;
+    }
+
+    @Override
+    public String getTipo() {
+        return "Produtor";
+    }
 }

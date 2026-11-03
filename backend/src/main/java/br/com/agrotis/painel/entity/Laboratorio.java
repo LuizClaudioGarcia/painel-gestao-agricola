@@ -33,4 +33,14 @@ public class Laboratorio extends EntidadeAgricola {
     public void setTaxaOperacional(BigDecimal taxaOperacional) {
         this.taxaOperacional = taxaOperacional;
     }
+
+    @Override
+    public BigDecimal calcularValorFinanceiro() {
+        return taxaOperacional;
+    }
+
+    @Override
+    public String getTipo() {
+        return "Laboratorio";
+    }
 }

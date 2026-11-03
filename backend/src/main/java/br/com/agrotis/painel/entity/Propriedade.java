@@ -33,4 +33,14 @@ public class Propriedade extends EntidadeAgricola {
     public void setTaxaTerritorial(BigDecimal taxaTerritorial) {
         this.taxaTerritorial = taxaTerritorial;
     }
+
+    @Override
+    public BigDecimal calcularValorFinanceiro() {
+        return taxaTerritorial;
+    }
+
+    @Override
+    public String getTipo() {
+        return "Propriedade";
+    }
 }
