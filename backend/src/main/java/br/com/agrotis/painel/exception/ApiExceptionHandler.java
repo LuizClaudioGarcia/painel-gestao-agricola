@@ -1,5 +1,6 @@
 package br.com.agrotis.painel.exception;
 
+import br.com.agrotis.painel.dto.ErroCampo;
 import br.com.agrotis.painel.dto.ErroResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,25 +19,27 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
-    private static final String EXEMPLO_UUID = "00000000-0000-7000-8000-000000000021";
+    private static final String DADOS_INVALIDOS = "Dados inválidos";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroResponse> dadosInvalidos(MethodArgumentNotValidException ex) {
-        List<String> erros = ex.getBindingResult().getFieldErrors().stream()
-                .map(erro -> erro.getField() + ": " + erro.getDefaultMessage())
+        List<ErroCampo> erros = ex.getBindingResult().getFieldErrors().stream()
+                .map(erro -> new ErroCampo(erro.getField(), erro.getDefaultMessage()))
                 .toList();
-        return ResponseEntity.badRequest().body(new ErroResponse("Dados inválidos", erros));
+        return ResponseEntity.badRequest().body(new ErroResponse(DADOS_INVALIDOS, erros));
     }
 
     @ExceptionHandler(RegraNegocioException.class)
     public ResponseEntity<ErroResponse> regra(RegraNegocioException ex) {
-        return ResponseEntity.badRequest().body(new ErroResponse(ex.getMessage(), List.of()));
+        if (ex.getCampo() != null) {
+            return campoInvalido(ex.getCampo(), ex.getMessage());
+        }
+        return resposta(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(NaoEncontradoException.class)
@@ -57,40 +60,25 @@ public class ApiExceptionHandler {
         }
         log.error("Conflito ao gravar", ex);
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ErroResponse("Os dados batem com um cadastro que já existe.", List.of()));
+                .body(new ErroResponse("Cadastro duplicado", List.of()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErroResponse> tipoInvalido(MethodArgumentTypeMismatchException ex) {
-        if (UUID.class.equals(ex.getRequiredType())) {
-            return resposta(HttpStatus.BAD_REQUEST, "O " + ex.getName() + " precisa ser um UUID. Exemplo: " + EXEMPLO_UUID);
-        }
-        if (OffsetDateTime.class.equals(ex.getRequiredType())) {
-            return resposta(HttpStatus.BAD_REQUEST, "O parâmetro " + ex.getName() + " precisa ser uma data com fuso. Exemplo: 2026-01-01T00:00:00Z");
-        }
-        return resposta(HttpStatus.BAD_REQUEST, "O valor de " + ex.getName() + " é inválido.");
+        return campoInvalido(ex.getName(), detalheDoTipo(ex.getRequiredType()));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErroResponse> parametroObrigatorio(MissingServletRequestParameterException ex) {
-        if ("quantidadeMinima".equals(ex.getParameterName())) {
-            return resposta(HttpStatus.BAD_REQUEST, "Informe quantidadeMinima, um inteiro a partir de 1.");
-        }
-        return resposta(HttpStatus.BAD_REQUEST, "Informe o parâmetro " + ex.getParameterName() + ".");
+        return campoInvalido(ex.getParameterName(), "ausente");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErroResponse> corpoInvalido(HttpMessageNotReadableException ex) {
         if (ex.getMostSpecificCause() instanceof InvalidFormatException formato) {
-            String campo = nomeDoCampo(formato);
-            if (UUID.class.equals(formato.getTargetType())) {
-                return resposta(HttpStatus.BAD_REQUEST, "O campo " + campo + " precisa ser um UUID. Exemplo: " + EXEMPLO_UUID);
-            }
-            if (OffsetDateTime.class.equals(formato.getTargetType())) {
-                return resposta(HttpStatus.BAD_REQUEST, "O campo " + campo + " precisa ser uma data com fuso. Exemplo: 2026-07-01T08:00:00Z");
-            }
+            return campoInvalido(nomeDoCampo(formato), detalheDoTipo(formato.getTargetType()));
         }
-        return resposta(HttpStatus.BAD_REQUEST, "Não consegui ler o JSON. Confira aspas, vírgulas, datas e UUIDs.");
+        return resposta(HttpStatus.BAD_REQUEST, "Json inválido");
     }
 
     private boolean inscricaoRepetida(DataIntegrityViolationException ex) {
@@ -99,12 +87,36 @@ public class ApiExceptionHandler {
     }
 
     private String nomeDoCampo(InvalidFormatException formato) {
-        String nome = formato.getPath().stream()
-                .map(referencia -> referencia.getFieldName() != null
-                        ? referencia.getFieldName()
-                        : "[" + referencia.getIndex() + "]")
-                .collect(Collectors.joining("."));
-        return nome.isBlank() ? "informado" : nome;
+        StringBuilder nome = new StringBuilder();
+        for (var referencia : formato.getPath()) {
+            if (referencia.getFieldName() != null) {
+                if (!nome.isEmpty()) {
+                    nome.append('.');
+                }
+                nome.append(referencia.getFieldName());
+            } else {
+                nome.append('[').append(referencia.getIndex()).append(']');
+            }
+        }
+        return nome.isEmpty() ? null : nome.toString();
+    }
+
+    private String detalheDoTipo(Class<?> tipo) {
+        if (UUID.class.equals(tipo)) {
+            return "UUID inválido";
+        }
+        if (OffsetDateTime.class.equals(tipo)) {
+            return "data inválida";
+        }
+        return "valor inválido";
+    }
+
+    private ResponseEntity<ErroResponse> campoInvalido(String campo, String detalhe) {
+        if (campo == null || campo.isBlank()) {
+            return resposta(HttpStatus.BAD_REQUEST, detalhe);
+        }
+        return ResponseEntity.badRequest()
+                .body(new ErroResponse(DADOS_INVALIDOS, List.of(new ErroCampo(campo, detalhe))));
     }
 
     private ResponseEntity<ErroResponse> resposta(HttpStatus status, String mensagem) {

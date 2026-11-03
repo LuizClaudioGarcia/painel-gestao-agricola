@@ -28,7 +28,7 @@ public class EntidadeFinanceiroController {
         this.valorFinanceiroService = valorFinanceiroService;
     }
 
-    @Operation(summary = "Processa o valor financeiro do cadastro", description = "Produtor devolve a comissão. Propriedade devolve a taxa territorial. Laboratório devolve a taxa operacional. A rota não envia valor e o service não verifica o tipo.")
+    @Operation(summary = "Processa o valor financeiro do cadastro", description = "Do produtor sai a comissão. Da propriedade, a taxa da terra. Do laboratório, a taxa de operação. A rota só leva o id. O cadastro calcula o próprio valor, e o service chama sem separar por tipo.")
     @ApiResponses({
             @ApiResponse(responseCode = "400", description = "O id não é um UUID.", content = @Content(schema = @Schema(implementation = ErroResponse.class))),
             @ApiResponse(responseCode = "404", description = "Não existe cadastro com esse UUID.", content = @Content(schema = @Schema(implementation = ErroResponse.class)))

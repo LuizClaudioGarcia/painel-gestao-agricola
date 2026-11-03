@@ -115,18 +115,18 @@ public class ProdutorService {
 
     private Produtor buscarProdutor(UUID id) {
         return produtorRepository.buscarComVinculos(id)
-                .orElseThrow(() -> new NaoEncontradoException("Produtor não encontrado. Confira o UUID na lista de produtores."));
+                .orElseThrow(() -> new NaoEncontradoException("Produtor não encontrado"));
     }
 
     private Laboratorio buscarLaboratorio(UUID id) {
         return laboratorioRepository.findById(id)
-                .orElseThrow(() -> new NaoEncontradoException("Laboratório não encontrado. Use um UUID de GET /api/laboratorios."));
+                .orElseThrow(() -> new NaoEncontradoException("Laboratório não encontrado"));
     }
 
     private List<Propriedade> buscarPropriedades(List<UUID> idsInformados) {
         List<UUID> ids = idsInformados == null ? List.of() : idsInformados.stream().distinct().toList();
         if (ids.stream().anyMatch(Objects::isNull)) {
-            throw new RegraNegocioException("A lista de propriedades tem um item sem UUID.");
+            throw new RegraNegocioException("propriedadesIds", "UUID inválido");
         }
         if (ids.isEmpty()) {
             return List.of();
@@ -134,14 +134,14 @@ public class ProdutorService {
 
         List<Propriedade> encontradas = propriedadeRepository.findAllById(ids);
         if (encontradas.size() != ids.size()) {
-            throw new NaoEncontradoException("Propriedade não encontrada. Use um UUID de GET /api/propriedades.");
+            throw new NaoEncontradoException("Propriedade não encontrada");
         }
         return encontradas;
     }
 
     private void validarDatas(ProdutorRequest request) {
         if (request.dataFinal().isBefore(request.dataInicial())) {
-            throw new RegraNegocioException("Data final não pode ser anterior à data inicial");
+            throw new RegraNegocioException("dataFinal", "anterior à data inicial");
         }
     }
 

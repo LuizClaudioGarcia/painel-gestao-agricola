@@ -26,7 +26,7 @@ public class ValorFinanceiroService {
     @Transactional(readOnly = true)
     public ValorFinanceiroResponse consultar(UUID id) {
         EntidadeAgricola cadastro = entidadeAgricolaRepository.findById(id)
-                .orElseThrow(() -> new NaoEncontradoException("Cadastro não encontrado."));
+                .orElseThrow(() -> new NaoEncontradoException("Cadastro não encontrado"));
         return new ValorFinanceiroResponse(
                 cadastro.getId(),
                 cadastro.getCodigo(),

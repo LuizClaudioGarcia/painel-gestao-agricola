@@ -22,13 +22,13 @@ public class LaboratorioAnaliticoService {
     @Transactional(readOnly = true)
     public List<LaboratorioAnaliticoResponse> consolidar(FiltroLaboratorioAnalitico filtro) {
         if (filtro.quantidadeMinima() == null || filtro.quantidadeMinima() < 1) {
-            throw new RegraNegocioException("quantidadeMinima começa em 1.");
+            throw new RegraNegocioException("quantidadeMinima", "menor que 1");
         }
         if (invertido(filtro.dataInicialDe(), filtro.dataInicialAte())) {
-            throw new RegraNegocioException("dataInicialDe não pode ser posterior a dataInicialAte.");
+            throw new RegraNegocioException("dataInicialDe", "posterior a dataInicialAte");
         }
         if (invertido(filtro.dataFinalDe(), filtro.dataFinalAte())) {
-            throw new RegraNegocioException("dataFinalDe não pode ser posterior a dataFinalAte.");
+            throw new RegraNegocioException("dataFinalDe", "posterior a dataFinalAte");
         }
 
         boolean ordenarPelaDataInicial = filtro.dataInicialDe() != null || filtro.dataInicialAte() != null;
