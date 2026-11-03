@@ -6,6 +6,10 @@ Aplicação full stack para cadastro de produtores, propriedades e laboratórios
 
 ## 🚀 Para quem vai avaliar: comece aqui
 
+Banco, API e front-end ficam no ar ao mesmo tempo, cada um no seu terminal. Os comandos partem da **raiz do repositório**. O Docker Desktop precisa estar aberto, não só instalado.
+
+No Windows (PowerShell), troque `./mvnw` por `mvnw.cmd`.
+
 ### Pré-requisitos
 
 | Ferramenta | Obrigatório? | Observação |
@@ -16,28 +20,36 @@ Aplicação full stack para cadastro de produtores, propriedades e laboratórios
 
 ### Passo 1: subir o banco
 
+Na raiz:
+
 ```bash
 docker compose up -d
 ```
 
-PostgreSQL em `localhost:5432`, banco `agrotis`, usuário e senha `postgres`.
+PostgreSQL em `localhost:5432`, banco `agrotis`, usuário e senha `postgres`. Este processo pode ir para segundo plano; os dois próximos não.
 
 ### Passo 2: subir a API
+
+Em **outro terminal**, na raiz:
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 
-Ao iniciar, o Flyway cria as tabelas e aplica a carga de exemplo (laboratórios, fazendas e produtores).
+Ao iniciar, o Flyway cria as tabelas e aplica a carga de exemplo (laboratórios, fazendas e produtores). Deixe este terminal aberto.
 
 ### Passo 3: subir o front-end
+
+Em um **terceiro terminal**, na raiz:
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+Deixe este terminal aberto e acesse:
 
 | Serviço | URL |
 |---|---|
@@ -54,12 +66,14 @@ npm run dev
 
 ### Passo 5: rodar os testes
 
+Em um terminal na raiz:
+
 ```bash
 cd backend
 ./mvnw test
 ```
 
-> Os testes de integração usam Testcontainers, que cria um PostgreSQL temporário no Docker durante a execução. Por isso o Docker precisa estar rodando.
+> Os testes de integração usam Testcontainers, que cria um PostgreSQL temporário no Docker durante a execução. Por isso o Docker Desktop precisa estar aberto.
 
 ---
 
