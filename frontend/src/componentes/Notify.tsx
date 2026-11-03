@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 type Props = {
   mensagem: string | null
@@ -50,7 +51,7 @@ export function Notify({ mensagem, aoFechar }: Props) {
 
   if (!mensagem || !fase) return null
 
-  return (
+  return createPortal(
     <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
       <div
         role="status"
@@ -74,6 +75,7 @@ export function Notify({ mensagem, aoFechar }: Props) {
           <IconeFechar />
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

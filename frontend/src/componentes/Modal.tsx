@@ -8,7 +8,7 @@ type QuadroProps = {
 
 export function ModalQuadro({ titulo, children, aoFechar }: QuadroProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-[1300] flex items-center justify-center bg-black/40 p-4">
       <div className="flex w-full max-w-lg flex-col overflow-hidden rounded bg-white shadow">
         <h2 className="bg-[#00735D] px-4 py-3 text-lg font-semibold text-white">{titulo}</h2>
         <div className="min-h-[160px] px-4 py-4 text-[#323E48]">{children}</div>
@@ -52,7 +52,7 @@ type ModalProps = {
 
 export function Modal({ titulo, texto, confirmar, aoCancelar, aoConfirmar }: ModalProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-[1300] flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded bg-white p-4 shadow">
         <h2 className="text-lg font-semibold text-slate-900">{titulo}</h2>
         <p className="mt-2 text-slate-700">{texto}</p>
