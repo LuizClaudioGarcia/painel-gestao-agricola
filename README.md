@@ -181,29 +181,18 @@ As entidades ficam em `backend/src/main/java/br/com/agrotis/painel/entity`.
 
 ## 🧠 Decisões e trade-offs
 
-**Herança `JOINED`.** Optei por centralizar nome, inscrição fiscal e endereço numa tabela base. Evita duplicar dados e mantém as restrições de cada entidade no próprio banco. O preço é um JOIN a mais, que considero justo aqui.
-
-**UUID v7 + `codigo`.** Usei dois identificadores com papéis diferentes: o UUID v7 na API, pra não expor sequência e não prejudicar os índices, e o `codigo` numérico pra exibição. O Hibernate 6.6 ainda não gera v7, então recorri à `uuid-creator`.
-
-**Cálculo financeiro sem `if` de tipo.** Cada entidade sabe calcular o próprio valor. Se amanhã entrar uma entidade nova, ela traz a própria regra, sem mexer no que já existe.
-
-**Relatório resolvido no banco.** Filtro, agregação e ordenação ficam na consulta, sem nada carregado em memória. Tive um cuidado especial com a contagem de produtores, que poderia sair duplicada.
-
-**PostgreSQL + Flyway.** Escolhi o Postgres pelo tratamento de datas com fuso e por ser mais rigoroso com integridade. O schema é versionado em SQL, e não gerado pelo Hibernate.
-
-**Testcontainers no lugar do H2.** Prefiro testar no mesmo banco que roda a aplicação. Custa alguns segundos a mais e exige Docker, mas evita surpresas nas consultas.
-
-**Nomes em português e inglês.** Mantive o domínio em português, igual ao enunciado, e a parte técnica em inglês, seguindo as convenções do Spring.
-
----
-
-## 🧠 Decisões e trade-offs
 **Herança `JOINED`.** Optei por centralizar nome, inscrição fiscal e endereço numa tabela base. Evita duplicar dados e mantém as restrições de cada entidade no próprio banco. O preço é um JOIN a mais, que considero justo para esse escopo.
+
 **UUID v7 + `codigo`.** Usei dois identificadores com papéis diferentes: o UUID v7 na API, pra não expor sequência e não prejudicar os índices, e o `codigo` numérico pra exibição. O Hibernate 6.6 ainda não gera v7, então utilizei `uuid-creator`.
+
 **Cálculo financeiro sem `if` de tipo.** Cada entidade sabe calcular o próprio valor. Se amanhã entrar uma entidade nova, ela traz a própria regra, sem mexer no que já existe.
+
 **Relatório resolvido no banco.** Filtro, agregação e ordenação ficam na consulta, sem nada carregado em memória. Tive um cuidado especial com a contagem de produtores, que poderia sair duplicada.
+
 **PostgreSQL + Flyway.** Escolhi o Postgres pelo tratamento de datas com fuso e por ser mais rigoroso com integridade. O schema é versionado em SQL, e não gerado pelo Hibernate.
+
 **Testcontainers no lugar do H2.** Os testes de integração rodam num PostgreSQL de verdade, na mesma versão da aplicação. O H2 não tem `ILIKE` nem trata `timestamptz` igual, então um teste podia passar nele e falhar em produção.
+
 **Nomes em português e inglês.** Mantive o domínio em português, igual ao enunciado, e a parte técnica em inglês, seguindo as convenções do Spring.
 
 ---
