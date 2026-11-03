@@ -6,9 +6,20 @@ Aplicação full stack para cadastro de produtores, propriedades e laboratórios
 
 ## 🚀 Para quem vai avaliar: comece aqui
 
-Banco, API e front-end ficam no ar ao mesmo tempo, cada um no seu terminal. Os comandos partem da **raiz do repositório**. O Docker Desktop precisa estar aberto, não só instalado.
+Banco, API e front-end ficam no ar ao mesmo tempo, cada um no seu terminal. Os comandos partem da **raiz do repositório**.
 
-No Windows (PowerShell), troque `./mvnw` por `mvnw.cmd`.
+O Docker precisa estar rodando, não só instalado: Docker Desktop no macOS e no Windows; no Linux, o serviço `docker`. `docker compose` e `npm` são iguais nos três. Só o Maven Wrapper muda.
+
+| | Linux e macOS | Windows (PowerShell) |
+|---|---|---|
+| API | `./mvnw spring-boot:run` | `mvnw.cmd spring-boot:run` |
+| Testes | `./mvnw test` | `mvnw.cmd test` |
+
+Se o `./mvnw` recusar permissão no Linux ou no macOS:
+
+```bash
+chmod +x backend/mvnw
+```
 
 ### Pré-requisitos
 
@@ -30,18 +41,27 @@ PostgreSQL em `localhost:5432`, banco `agrotis`, usuário e senha `postgres`. Es
 
 ### Passo 2: subir a API
 
-Em **outro terminal**, na raiz:
+Em **outro terminal**, na raiz.
+
+Linux e macOS:
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 
+Windows (PowerShell):
+
+```powershell
+cd backend
+mvnw.cmd spring-boot:run
+```
+
 Ao iniciar, o Flyway cria as tabelas e aplica a carga de exemplo (laboratórios, fazendas e produtores). Deixe este terminal aberto.
 
 ### Passo 3: subir o front-end
 
-Em um **terceiro terminal**, na raiz:
+Em um **terceiro terminal**, na raiz. Igual nos três sistemas:
 
 ```bash
 cd frontend
@@ -66,14 +86,23 @@ Deixe este terminal aberto e acesse:
 
 ### Passo 5: rodar os testes
 
-Em um terminal na raiz:
+Em um terminal na raiz.
+
+Linux e macOS:
 
 ```bash
 cd backend
 ./mvnw test
 ```
 
-> Os testes de integração usam Testcontainers, que cria um PostgreSQL temporário no Docker durante a execução. Por isso o Docker Desktop precisa estar aberto.
+Windows (PowerShell):
+
+```powershell
+cd backend
+mvnw.cmd test
+```
+
+> Os testes de integração usam Testcontainers, que cria um PostgreSQL temporário no Docker durante a execução. Por isso o daemon do Docker precisa estar rodando.
 
 ---
 
