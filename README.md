@@ -210,6 +210,6 @@ Onde o enunciado deixou espaço, tomei algumas decisões:
 
 ## 🤖 Uso de IA
 
-O enunciado permite usar IA e pede para descrever como. Usei como par de programação: ela escrevia o código, e eu definia a arquitetura, revisava e só subia o que eu conseguia explicar.
+O enunciado permite usar IA e pede para descrever como. Usei como par de programação: ela escrevia o código, e eu definia a arquitetura, revisava e só subia o que eu pudesse entender e validar.
 
 Os prompts, o que eu mantive e o que eu corrigi estão em [docs/prompts.md](docs/prompts.md).
