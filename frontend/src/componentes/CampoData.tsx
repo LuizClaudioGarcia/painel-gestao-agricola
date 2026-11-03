@@ -15,9 +15,10 @@ type Props = {
   rotulo: string
   valor: string
   aoMudar: (valor: string) => void
+  erro?: boolean
 }
 
-export function CampoData({ rotulo, valor, aoMudar }: Props) {
+export function CampoData({ rotulo, valor, aoMudar, erro = false }: Props) {
   return (
     <DatePicker
       label={rotulo}
@@ -32,6 +33,7 @@ export function CampoData({ rotulo, valor, aoMudar }: Props) {
           variant: 'standard',
           fullWidth: true,
           required: true,
+          error: erro,
           sx: {
             minHeight: 48,
             '& .MuiInput-root': { minHeight: 32, pr: 0.5 },

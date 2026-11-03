@@ -6,9 +6,14 @@ import { cliente } from '../api/cliente.ts'
 import { mensagemDoErro } from '../api/erro.ts'
 import { CampoData } from '../componentes/CampoData.tsx'
 import { Carregando, Erro } from '../componentes/Estados.tsx'
+import { Notify } from '../componentes/Notify.tsx'
+import { formatarInscricaoFiscal, tipoInscricao } from '../formatar.ts'
 import type { Cadastro, Produtor } from '../tipos.ts'
 
 const LIMITE_OBS = 100
+const AVISO_OBRIGATORIOS = 'Preencha todos os campos obrigatórios.'
+
+type CampoForm = 'nome' | 'inscricaoFiscal' | 'endereco' | 'dataInicial' | 'dataFinal' | 'laboratorio' | 'comissaoProducao'
 
 function dia(iso: string) {
   return iso.slice(0, 10)
@@ -32,6 +37,7 @@ export function FormProdutor() {
   const [propriedades, setPropriedades] = useState<Cadastro[] | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
+  const [invalidos, setInvalidos] = useState<Set<CampoForm>>(new Set())
   const [salvando, setSalvando] = useState(false)
   const [tentativa, setTentativa] = useState(0)
 
@@ -60,7 +66,7 @@ export function FormProdutor() {
         if (!produtor) return
         const dados = produtor.data
         setNome(dados.nome)
-        setInscricaoFiscal(dados.inscricaoFiscal)
+        setInscricaoFiscal(formatarInscricaoFiscal(dados.inscricaoFiscal))
         setEndereco(dados.endereco)
         setDataInicial(dia(dados.dataInicial))
         setDataFinal(dia(dados.dataFinal))
@@ -77,22 +83,39 @@ export function FormProdutor() {
     }
   }, [id, tentativa])
 
+  function limparErro(campo: CampoForm) {
+    setInvalidos((atual) => {
+      if (!atual.has(campo)) return atual
+      const proximo = new Set(atual)
+      proximo.delete(campo)
+      return proximo
+    })
+  }
+
   async function salvar(evento: FormEvent) {
     evento.preventDefault()
     if (salvando) return
-    if (!nome.trim() || !inscricaoFiscal.trim() || !endereco.trim() || !laboratorio) {
-      setAviso('Preencha nome, inscrição, endereço e laboratório.')
-      return
-    }
-    if (!dataInicial || !dataFinal || dataFinal < dataInicial) {
-      setAviso('Data final não pode ser anterior à data inicial.')
-      return
+    const falhas = new Set<CampoForm>()
+    if (!nome.trim()) falhas.add('nome')
+    if (!inscricaoFiscal.trim()) falhas.add('inscricaoFiscal')
+    if (!endereco.trim()) falhas.add('endereco')
+    if (!laboratorio) falhas.add('laboratorio')
+    if (!dataInicial) falhas.add('dataInicial')
+    if (!dataFinal) falhas.add('dataFinal')
+    if (dataInicial && dataFinal && dataFinal < dataInicial) {
+      falhas.add('dataInicial')
+      falhas.add('dataFinal')
     }
     const comissao = Number(comissaoProducao)
-    if (Number.isNaN(comissao) || comissao < 0) {
-      setAviso('A comissão não pode ser negativa.')
+    if (comissaoProducao.trim() === '' || Number.isNaN(comissao) || comissao < 0) {
+      falhas.add('comissaoProducao')
+    }
+    if (falhas.size > 0 || !laboratorio) {
+      setInvalidos(falhas)
+      setAviso(AVISO_OBRIGATORIOS)
       return
     }
+    setInvalidos(new Set())
 
     const corpo = {
       nome: nome.trim(),
@@ -124,7 +147,6 @@ export function FormProdutor() {
 
   return (
     <form id="form-produtor" noValidate onSubmit={(evento) => { void salvar(evento) }}>
-      {aviso && <p className="mb-4 text-sm text-red-700">{aviso}</p>}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
           <TextField
@@ -132,15 +154,35 @@ export function FormProdutor() {
             fullWidth
             required
             label="Nome"
+            error={invalidos.has('nome')}
             value={nome}
-            onChange={(evento) => setNome(evento.target.value)}
+            onChange={(evento) => {
+              setNome(evento.target.value)
+              limparErro('nome')
+            }}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <CampoData rotulo="Data Inicial" valor={dataInicial} aoMudar={setDataInicial} />
+          <CampoData
+            rotulo="Data Inicial"
+            valor={dataInicial}
+            erro={invalidos.has('dataInicial')}
+            aoMudar={(valor) => {
+              setDataInicial(valor)
+              limparErro('dataInicial')
+            }}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
-          <CampoData rotulo="Data Final" valor={dataFinal} aoMudar={setDataFinal} />
+          <CampoData
+            rotulo="Data Final"
+            valor={dataFinal}
+            erro={invalidos.has('dataFinal')}
+            aoMudar={(valor) => {
+              setDataFinal(valor)
+              limparErro('dataFinal')
+            }}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <Autocomplete
@@ -184,10 +226,19 @@ export function FormProdutor() {
             getOptionLabel={(opcao) => opcao.nome}
             isOptionEqualToValue={(a, b) => a.id === b.id}
             value={laboratorio}
-            onChange={(_, escolhido) => setLaboratorio(escolhido)}
+            onChange={(_, escolhido) => {
+              setLaboratorio(escolhido)
+              limparErro('laboratorio')
+            }}
             noOptionsText="Nenhum laboratório"
             renderInput={(params) => (
-              <TextField {...params} variant="standard" required label="Laboratório" />
+              <TextField
+                {...params}
+                variant="standard"
+                required
+                error={invalidos.has('laboratorio')}
+                label="Laboratório"
+              />
             )}
           />
         </Grid>
@@ -197,8 +248,20 @@ export function FormProdutor() {
             fullWidth
             required
             label="Inscrição fiscal"
+            error={invalidos.has('inscricaoFiscal')}
             value={inscricaoFiscal}
-            onChange={(evento) => setInscricaoFiscal(evento.target.value)}
+            onChange={(evento) => {
+              setInscricaoFiscal(formatarInscricaoFiscal(evento.target.value))
+              limparErro('inscricaoFiscal')
+            }}
+            slotProps={{
+              htmlInput: {
+                type: tipoInscricao(inscricaoFiscal),
+                inputMode: 'numeric',
+                maxLength: 18,
+                autoComplete: 'off',
+              },
+            }}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 5 }}>
@@ -207,8 +270,12 @@ export function FormProdutor() {
             fullWidth
             required
             label="Endereço"
+            error={invalidos.has('endereco')}
             value={endereco}
-            onChange={(evento) => setEndereco(evento.target.value)}
+            onChange={(evento) => {
+              setEndereco(evento.target.value)
+              limparErro('endereco')
+            }}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
@@ -218,8 +285,12 @@ export function FormProdutor() {
             required
             label="Comissão"
             type="number"
+            error={invalidos.has('comissaoProducao')}
             value={comissaoProducao}
-            onChange={(evento) => setComissaoProducao(evento.target.value)}
+            onChange={(evento) => {
+              setComissaoProducao(evento.target.value)
+              limparErro('comissaoProducao')
+            }}
             slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
           />
         </Grid>
@@ -238,6 +309,7 @@ export function FormProdutor() {
           />
         </Grid>
       </Grid>
+      <Notify tipo="erro" mensagem={aviso} aoFechar={() => setAviso(null)} />
     </form>
   )
 }

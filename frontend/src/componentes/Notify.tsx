@@ -1,43 +1,59 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+export type TipoNotify = 'sucesso' | 'erro'
+
 type Props = {
   mensagem: string | null
+  tipo?: TipoNotify
   aoFechar: () => void
 }
 
-function IconeOk() {
+const COR = {
+  sucesso: { barra: 'bg-[#4caf50]', icone: '#4caf50' },
+  erro: { barra: 'bg-[#e53935]', icone: '#e53935' },
+}
+
+function IconeStatus({ tipo, cor }: { tipo: TipoNotify; cor: string }) {
   return (
-    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
-      <circle cx="14" cy="14" r="14" fill="#fff" />
-      <path
-        d="M8.2 14.4l3.6 3.6 8-8.4"
-        fill="none"
-        stroke="#4caf50"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+      <circle cx="11" cy="11" r="11" fill="#fff" />
+      {tipo === 'sucesso' ? (
+        <path
+          d="M6.2 11.4l3 3 6.6-7"
+          fill="none"
+          stroke={cor}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ) : (
+        <>
+          <path d="M11 6.2v6.2" fill="none" stroke={cor} strokeWidth="2" strokeLinecap="round" />
+          <circle cx="11" cy="15.6" r="1.05" fill={cor} />
+        </>
+      )}
     </svg>
   )
 }
 
 function IconeFechar() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M6 6l12 12M18 6L6 18"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.2"
         strokeLinecap="round"
       />
     </svg>
   )
 }
 
-export function Notify({ mensagem, aoFechar }: Props) {
+export function Notify({ mensagem, tipo = 'sucesso', aoFechar }: Props) {
   const [fase, setFase] = useState<'sobe' | 'desce' | null>(null)
+  const visual = COR[tipo]
 
   useEffect(() => {
     if (!mensagem) {
@@ -45,17 +61,17 @@ export function Notify({ mensagem, aoFechar }: Props) {
       return
     }
     setFase('sobe')
-    const t = window.setTimeout(() => setFase('desce'), 4000)
+    const t = window.setTimeout(() => setFase('desce'), tipo === 'erro' ? 5000 : 4000)
     return () => window.clearTimeout(t)
-  }, [mensagem])
+  }, [mensagem, tipo])
 
   if (!mensagem || !fase) return null
 
   return createPortal(
-    <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
+    <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-3">
       <div
         role="status"
-        className={`pointer-events-auto flex w-full max-w-3xl items-center gap-4 rounded-lg bg-[#4caf50] px-5 py-3.5 text-[16px] text-white shadow-[0_4px_12px_rgba(0,0,0,0.18)] ${
+        className={`pointer-events-auto inline-flex max-w-[calc(100%-1.5rem)] items-center rounded-md px-3.5 py-2 text-[15px] leading-none text-white shadow-[0_2px_8px_rgba(0,0,0,0.16)] ${visual.barra} ${
           fase === 'desce' ? 'notify-desce' : 'notify-sobe'
         }`}
         onAnimationEnd={() => {
@@ -63,13 +79,13 @@ export function Notify({ mensagem, aoFechar }: Props) {
         }}
       >
         <span className="shrink-0">
-          <IconeOk />
+          <IconeStatus tipo={tipo} cor={visual.icone} />
         </span>
-        <span className="min-w-0 flex-1">{mensagem}</span>
+        <span className="ml-2.5 min-w-0">{mensagem}</span>
         <button
           type="button"
           aria-label="Fechar"
-          className="shrink-0 rounded p-1 text-white hover:bg-white/15"
+          className="ml-8 shrink-0 rounded p-0.5 text-white hover:bg-white/15"
           onClick={() => setFase('desce')}
         >
           <IconeFechar />
