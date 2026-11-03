@@ -6,9 +6,9 @@ Usei IA como par de programação: ela escrevia o código, e eu definia a arquit
 
 - **Regras antes do código.** Escrevi antes um arquivo com a stack, o padrão do projeto e as decisões que não podiam mudar.
 - **Por etapas.** Banco e entidades, cálculo, consulta analítica, controllers, front e README. No começo cada parte virou um commit pequeno. Perto do prazo, passei a juntar mais coisa por commit.
-- **Eu revisava e commitava.** Nada entrou sem eu ler, rodar e saber explicar.
+- **Revisão e Commit.** Nada subiu sem ter sido revisado, conferido, rodado e validado.
 
-## Alguns prompts
+## Exemplos de pedidos (reescritos, não copiados do chat)
 
 **Cálculo financeiro**
 
@@ -16,11 +16,11 @@ Usei IA como par de programação: ela escrevia o código, e eu definia a arquit
 
 **Consulta analítica**
 
-> Essa consulta vai em SQL nativo. Não junta a `produtor_propriedade`, senão o COUNT conta produtor repetido. A ordenação não pode vir da URL: deixa duas opções fixas no código. O teste de integração tem que rodar num Postgres de verdade com Testcontainers, nada de H2.
+> Essa consulta analítica vai em SQL nativo no PostgreSQL, via JDBC. Agrega no banco: `GROUP BY` do laboratório, `COUNT` dos produtores e `HAVING` na quantidade mínima. Não faz `JOIN` em `produtor_propriedade`: o N:N infla o result set e o `COUNT` duplica produtor. Filtros por intervalo de `timestamptz` e `ILIKE` nas observações, tudo com parâmetro nomeado. A cláusula `ORDER BY` não vem da URL — duas constantes no código. Teste de integração com Testcontainers no PostgreSQL; nada de H2, que não tem `ILIKE` nem trata `timestamptz` igual.
 
 **Front-end**
 
-> Vou mandar o link do Figma com as telas. Monta com Material UI, usando o `Table` com o `TablePagination` na listagem. Toda tela precisa tratar carregando, erro com tentar de novo e lista vazia. O ID que aparece pro usuário é o código, não o UUID.
+> O link do Figma está anexado. Monta com Material UI, usando o `Table` com o `TablePagination` na listagem. Toda tela precisa tratar carregando, erro com tentar de novo e lista vazia. O ID que aparece pro usuário é o código, não o UUID. São três telas: [...]. Nos campos de inscrição, valida CPF e CNPJ. Se o usuário tentar enviar sem preencher o obrigatório, marca o campo com borda vermelha e mostra um toaster de erro [...]
 
 Eu teria preferido gerar a base das telas pelo Figma Make, mas não tinha acesso no momento.
 
