@@ -8,6 +8,8 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+import br.com.agrotis.teste.identificador.UuidV7;
+
 import java.util.UUID;
 
 @Entity
@@ -33,7 +35,7 @@ public abstract class EntidadeAgricola {
     @PrePersist
     void gerarId() {
         if (id == null) {
-            id = UUID.randomUUID();
+            id = UuidV7.gerar();
         }
     }
 

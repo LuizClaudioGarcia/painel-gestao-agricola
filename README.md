@@ -16,7 +16,7 @@ A API cobre o cadastro do produtor. A interface tem formulário, lista e um pain
 
 ## Modelo de dados
 
-Nome, inscrição fiscal e endereço ficam em `entidade_agricola`. As três filhas compartilham o mesmo `id` (herança `JOINED`). O `codigo` numérico é da filha. A URL da API usa o UUID.
+Nome, inscrição fiscal e endereço ficam em `entidade_agricola`. As três filhas compartilham o mesmo `id` (herança `JOINED`). O `codigo` numérico é da filha. A URL usa UUID v7, da biblioteca `uuid-creator`. O Hibernate 6.6 não gera essa versão.
 
 ```mermaid
 erDiagram
