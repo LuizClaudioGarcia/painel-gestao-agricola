@@ -1,34 +1,105 @@
-# Painel de gestão agrícola
+# 🌱 Painel de Gestão Agrícola
 
-Cadastro de produtores, propriedades e laboratórios, com cálculo financeiro e um relatório por laboratório.
+Aplicação full stack para cadastro de produtores, propriedades e laboratórios, com cálculo financeiro por entidade e um relatório consolidado por laboratório.
 
-## Stack
+---
 
-- Back-end: Java 17 e Spring Boot 3.5
-- Front-end: React e TypeScript
-- Banco: PostgreSQL 16, com Flyway
+## 🚀 Para quem vai avaliar: comece aqui
 
-## Sobre
+### Pré-requisitos
 
-Nome, inscrição fiscal e endereço ficam numa tabela só. Produtor, propriedade e laboratório usam o mesmo identificador. As classes Java em `backend/src/main/java/br/com/agrotis/painel/entity` apontam para essas tabelas.
+| Ferramenta | Obrigatório? | Observação |
+|---|---|---|
+| [Docker](https://docs.docker.com/get-docker/) | Sim | Sobe o PostgreSQL (e é usado pelos testes com Testcontainers) |
+| Java 17+ | Sim | Para rodar a API |
+| Node.js 20+ | Sim | Para rodar o front-end |
 
-A API cobre o cadastro do produtor. A interface tem formulário, lista e um painel do relatório. O cálculo devolve o valor cadastrado: comissão no produtor, taxa territorial na propriedade, taxa operacional no laboratório. A rota é `GET /api/entidades/{id}/valor-financeiro`. O relatório de laboratórios agrega no próprio banco.
+### Passo 1: subir o banco
 
-## Modelo de dados
+```bash
+docker compose up -d
+```
 
-Nome, inscrição fiscal e endereço ficam em `entidade_agricola`. As três filhas compartilham o mesmo `id` (herança `JOINED`). O `codigo` numérico é da filha. A URL usa UUID v7, da biblioteca `uuid-creator`. O Hibernate 6.6 não gera essa versão.
+PostgreSQL em `localhost:5432`, banco `agrotis`, usuário e senha `postgres`.
+
+### Passo 2: subir a API
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+Ao iniciar, o Flyway cria as tabelas e aplica a carga de exemplo (laboratórios, fazendas e produtores).
+
+### Passo 3: subir o front-end
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+| Serviço | URL |
+|---|---|
+| **Front-end (abra este)** | http://localhost:5173 |
+| API | http://localhost:8080 |
+| Swagger | http://localhost:8080/swagger-ui.html |
+
+### Passo 4: roteiro rápido de teste
+
+1. **Cadastrar:** crie um produtor, selecione uma ou mais propriedades e um laboratório.
+2. **Editar e excluir:** use as ações da listagem.
+3. **Validação:** tente salvar com a data final anterior à inicial.
+4. **Painel de indicadores:** aplique os filtros (datas, texto, mínimo de produtores) e confira a ordenação.
+
+### Passo 5: rodar os testes
+
+```bash
+cd backend
+./mvnw test
+```
+
+> Os testes de integração usam Testcontainers, que cria um PostgreSQL temporário no Docker durante a execução. Por isso o Docker precisa estar rodando.
+
+---
+
+## 🧩 O que foi implementado
+
+| Área | Detalhes |
+|---|---|
+| **CRUD de Produtor** | Cadastro, edição, listagem e exclusão, com vínculo a N propriedades e 1 laboratório |
+| **Seletores** | Endpoints de apoio para os dropdowns de propriedades e laboratórios |
+| **Cálculo financeiro** | `GET /api/entidades/{id}/valor-financeiro` |
+| **Relatório analítico** | `GET /api/laboratorios/analitico`, com filtros, agregação e ordenação no banco |
+| **Front-end** | Formulário, listagem e painel de indicadores, com estados de carregamento, erro e vazio |
+| **Documentação** | Swagger/OpenAPI |
+
+## 🛠️ Stack
+
+| Camada | Tecnologia |
+|---|---|
+| Back-end | Java 17, Spring Boot 3.5, Spring Data JPA |
+| Banco | PostgreSQL 16, Flyway |
+| Front-end | React, TypeScript, Vite |
+| Testes | JUnit 5, Testcontainers |
+
+---
+
+## 🗄️ Modelo de dados
+
+Produtor, Propriedade e Laboratório compartilham os mesmos dados de identidade: nome, inscrição fiscal e endereço. Em vez de repetir essas colunas em três tabelas, elas ficam em `entidade_agricola`, e cada entidade tem sua própria tabela ligada pelo mesmo `id` (herança JPA `JOINED`). Assim não há dado duplicado, e o banco garante a integridade com chaves estrangeiras reais.
 
 ```mermaid
 erDiagram
     ENTIDADE_AGRICOLA {
         uuid id PK
         varchar nome
-        varchar inscricao_fiscal
+        varchar inscricao_fiscal UK
         varchar endereco
     }
     PRODUTOR {
-        uuid id PK
-        bigint codigo
+        uuid id PK, FK
+        bigint codigo UK
         uuid laboratorio_id FK
         timestamptz data_inicial
         timestamptz data_final
@@ -36,35 +107,32 @@ erDiagram
         numeric comissao_producao
     }
     PROPRIEDADE {
-        uuid id PK
-        bigint codigo
+        uuid id PK, FK
+        bigint codigo UK
         numeric taxa_territorial
     }
     LABORATORIO {
-        uuid id PK
-        bigint codigo
+        uuid id PK, FK
+        bigint codigo UK
         numeric taxa_operacional
     }
     PRODUTOR_PROPRIEDADE {
-        uuid produtor_id PK
-        uuid propriedade_id PK
+        uuid produtor_id PK, FK
+        uuid propriedade_id PK, FK
     }
-    ENTIDADE_AGRICOLA ||--|| PRODUTOR : herda
-    ENTIDADE_AGRICOLA ||--|| PROPRIEDADE : herda
-    ENTIDADE_AGRICOLA ||--|| LABORATORIO : herda
-    LABORATORIO ||--o{ PRODUTOR : obriga
-    PRODUTOR ||--o{ PRODUTOR_PROPRIEDADE : vincula
-    PROPRIEDADE ||--o{ PRODUTOR_PROPRIEDADE : vincula
+    ENTIDADE_AGRICOLA ||--o| PRODUTOR : "é um"
+    ENTIDADE_AGRICOLA ||--o| PROPRIEDADE : "é um"
+    ENTIDADE_AGRICOLA ||--o| LABORATORIO : "é um"
+    LABORATORIO ||--o{ PRODUTOR : possui
+    PRODUTOR ||--o{ PRODUTOR_PROPRIEDADE : vinculo
+    PROPRIEDADE ||--o{ PRODUTOR_PROPRIEDADE : vinculo
 ```
 
-Inscrição fiscal é única no pai. `codigo` é único em cada filha. Produtor tem um laboratório obrigatório e várias propriedades.
+**Regras garantidas pelo banco:**
+- A inscrição fiscal é única na tabela base, e o `codigo` é único em cada tabela filha.
+- Todo produtor tem obrigatoriamente um laboratório (`laboratorio_id NOT NULL`).
+- O vínculo produtor-propriedade é N:N, com chave composta para não duplicar.
 
-## Banco
+As entidades ficam em `backend/src/main/java/br/com/agrotis/painel/entity`.
 
-```bash
-docker compose up -d
-```
 
-Postgres em `localhost:5432`, banco `agrotis`, usuário e senha `postgres`. Ao subir a API, o Flyway aplica a V2 com laboratórios, fazendas e produtores de exemplo.
-
-A API fica em `http://localhost:8080`. O Swagger abre em `http://localhost:8080/swagger-ui.html`.
