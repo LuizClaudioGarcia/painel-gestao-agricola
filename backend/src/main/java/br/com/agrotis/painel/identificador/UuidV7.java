@@ -1,4 +1,4 @@
-package br.com.agrotis.teste.identificador;
+package br.com.agrotis.painel.identificador;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 

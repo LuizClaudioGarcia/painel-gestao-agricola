@@ -1,4 +1,4 @@
-package br.com.agrotis.teste.entity;
+package br.com.agrotis.painel.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,15 +8,15 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "laboratorio")
+@Table(name = "propriedade")
 @PrimaryKeyJoinColumn(name = "id")
-public class Laboratorio extends EntidadeAgricola {
+public class Propriedade extends EntidadeAgricola {
 
     @Column(name = "codigo", nullable = false, unique = true, updatable = false)
     private Long codigo;
 
-    @Column(name = "taxa_operacional", nullable = false, precision = 15, scale = 2)
-    private BigDecimal taxaOperacional;
+    @Column(name = "taxa_territorial", nullable = false, precision = 15, scale = 2)
+    private BigDecimal taxaTerritorial;
 
     public Long getCodigo() {
         return codigo;
@@ -26,11 +26,11 @@ public class Laboratorio extends EntidadeAgricola {
         this.codigo = codigo;
     }
 
-    public BigDecimal getTaxaOperacional() {
-        return taxaOperacional;
+    public BigDecimal getTaxaTerritorial() {
+        return taxaTerritorial;
     }
 
-    public void setTaxaOperacional(BigDecimal taxaOperacional) {
-        this.taxaOperacional = taxaOperacional;
+    public void setTaxaTerritorial(BigDecimal taxaTerritorial) {
+        this.taxaTerritorial = taxaTerritorial;
     }
 }

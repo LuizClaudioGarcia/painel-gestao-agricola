@@ -1,4 +1,4 @@
-package br.com.agrotis.teste.entity;
+package br.com.agrotis.painel.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

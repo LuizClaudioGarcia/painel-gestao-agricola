@@ -1,4 +1,4 @@
-package br.com.agrotis.teste;
+package br.com.agrotis.painel;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

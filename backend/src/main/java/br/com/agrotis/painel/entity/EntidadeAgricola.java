@@ -1,4 +1,4 @@
-package br.com.agrotis.teste.entity;
+package br.com.agrotis.painel.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +8,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
-import br.com.agrotis.teste.identificador.UuidV7;
+import br.com.agrotis.painel.identificador.UuidV7;
 
 import java.util.UUID;
 
@@ -65,5 +65,21 @@ public abstract class EntidadeAgricola {
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
+    }
+
+    @Override
+    public final boolean equals(Object outro) {
+        if (this == outro) {
+            return true;
+        }
+        if (!(outro instanceof EntidadeAgricola entidade)) {
+            return false;
+        }
+        return id != null && id.equals(entidade.id);
+    }
+
+    @Override
+    public final int hashCode() {
+        return EntidadeAgricola.class.hashCode();
     }
 }

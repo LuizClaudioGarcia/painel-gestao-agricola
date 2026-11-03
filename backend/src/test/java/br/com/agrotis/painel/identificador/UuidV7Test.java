@@ -1,4 +1,4 @@
-package br.com.agrotis.teste.identificador;
+package br.com.agrotis.painel.identificador;
 
 import org.junit.jupiter.api.Test;
 
