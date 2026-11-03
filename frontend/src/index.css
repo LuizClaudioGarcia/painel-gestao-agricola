@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+html,
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: #e6e6e6;
+  color: #323e48;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@keyframes notify-sobe {
+  from {
+    transform: translateY(calc(100% + 2rem));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes notify-desce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(100% + 2rem));
+  }
+}
+
+.notify-sobe {
+  animation: notify-sobe 0.4s ease-out both;
+}
+
+.notify-desce {
+  animation: notify-desce 0.3s ease-in both;
+}
