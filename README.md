@@ -65,4 +65,4 @@ Inscrição fiscal é única no pai. `codigo` é único em cada filha. Produtor 
 docker compose up -d
 ```
 
-Postgres em `localhost:5432`, banco `agrotis`, usuário e senha `postgres`.
+Postgres em `localhost:5432`, banco `agrotis`, usuário e senha `postgres`. Ao subir a API, o Flyway aplica a V2 com laboratórios, fazendas e produtores de exemplo.
