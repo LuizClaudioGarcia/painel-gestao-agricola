@@ -205,3 +205,11 @@ Onde o enunciado deixou espaço, tomei algumas decisões:
 - Como o enunciado não define fórmulas, cada entidade devolve o valor já gravado no banco (comissão, taxa territorial ou taxa operacional), como resultado final. A estrutura permite trocar a regra de uma entidade sem mexer no resto.
 - O produtor só vincula propriedades e laboratório pelo `id`, sem alterar os dados deles.
 - A inscrição fiscal é única no sistema todo. Pensei em liberar por tipo de cadastro (fazenda no CPF do próprio produtor), mas mantive a regra mais restrita por enquanto.
+
+---
+
+## 🤖 Uso de IA
+
+O enunciado permite usar IA e pede para descrever como. Usei como par de programação: ela escrevia o código, e eu definia a arquitetura, revisava e só subia o que eu conseguia explicar.
+
+Os prompts, o que eu mantive e o que eu corrigi estão em [docs/prompts.md](docs/prompts.md).
