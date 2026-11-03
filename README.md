@@ -10,7 +10,7 @@ Cadastro de produtores, propriedades e laboratórios, com cálculo financeiro e 
 
 ## Sobre
 
-Nome, inscrição fiscal e endereço ficam numa tabela só. Produtor, propriedade e laboratório usam o mesmo identificador.
+Nome, inscrição fiscal e endereço ficam numa tabela só. Produtor, propriedade e laboratório usam o mesmo identificador. As classes Java em `backend/src/main/java/br/com/agrotis/teste/entity` apontam para essas tabelas.
 
 A API cobre o cadastro do produtor. A interface tem formulário, lista e um painel do relatório. O cálculo financeiro fica em cada tipo de cadastro. O relatório de laboratórios agrega no próprio banco.
 
